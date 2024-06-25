@@ -5,15 +5,6 @@
 
 #define MAX_SIZE 100
 
-// long long gcd(long long a, long long b) {
-//     while (b != 0) {
-//         long long t = b;
-//         b = a % b;
-//         a = t;
-//     }
-//     return a;
-// }
-
 long long modInverse(long long e, long long phi) {
     long long m0 = phi, t, q;
     long long x0 = 0, x1 = 1;
