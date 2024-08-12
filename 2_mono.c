@@ -2,27 +2,22 @@
 #include <string.h>
 #include <ctype.h>
  
-// Function to encrypt the message using a monoalphabetic cipher
 void encrypt(char plaintext[], char key[]) {
     int i;
     for (i = 0; plaintext[i] != '\0'; ++i) {
         if (isalpha(plaintext[i])) {
-            // Convert uppercase letters to corresponding key letters
             if (isupper(plaintext[i]))
                 plaintext[i] = key[plaintext[i] - 'A'];
-            // Convert lowercase letters to corresponding key letters
             else if (islower(plaintext[i]))
                 plaintext[i] = tolower(key[plaintext[i] - 'a']);
         }
     }
 }
 
-// Function to decrypt the message using a monoalphabetic cipher
 void decrypt(char ciphertext[], char key[]) {
     int i;
     for (i = 0; ciphertext[i] != '\0'; ++i) {
         if (isalpha(ciphertext[i])) {
-            // Find the index of the character in the key and convert it to its corresponding letter
             if (isupper(ciphertext[i]))
                 ciphertext[i] = 'A' + (strchr(key, ciphertext[i]) - key);
             else if (islower(ciphertext[i]))
@@ -32,14 +27,23 @@ void decrypt(char ciphertext[], char key[]) {
 }
 
 int main() {
-    char plaintext[] = "EARTH WORLD";
-    char key[] = "QWERTYUIOPASDFGHJKLZXCVBNM";
-    char ciphertext[strlen(plaintext) + 1];
+    // char plaintext[] = "EARTH WORLD";
+    // char key[] = "QWERTYUIOPASDFGHJKLZXCVBNM";
 
-    printf("Original Plaintext: %s\n", plaintext);
+    char plaintext[256];
+    char key[27];
+    char ciphertext[256];
+
+    printf("Enter the plaintext (uppercase letters and spaces only): ");
+    fgets(plaintext, sizeof(plaintext), stdin);
+    plaintext[strcspn(plaintext, "\n")] = '\0';
+
+    printf("Enter the key (26 uppercase letters): ");
+    fgets(key, sizeof(key), stdin);
+    key[strcspn(key, "\n")] = '\0'; 
 
     // Encrypt the plaintext
-    strcpy(ciphertext, plaintext); // Make a copy of the plaintext
+    strcpy(ciphertext, plaintext);
     encrypt(ciphertext, key);
     printf("Encrypted Ciphertext: %s\n", ciphertext);
 

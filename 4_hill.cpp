@@ -46,10 +46,20 @@ void HillCipher(string plainText, string key) {
  
 int main()
 {
-    string plainText = "SBT";
+    // string plainText = "SBT";
+    // string key = "HAIEOPFUR";
  
-    string key = "HAIEOPFUR";
- 
+    string plainText;
+    string key;
+
+    cout << "Enter plainText : ";
+    cin >> plainText;
+
+    cout << "Enter Key : ";
+    cin >> key;
+
+    cout << endl;
+
     HillCipher(plainText, key);
  
     return 0;

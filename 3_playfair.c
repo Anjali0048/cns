@@ -1,17 +1,11 @@
-// Implementation of Playfair Cipher in C program
-
-#include <stdio.h>   //header file
-#include <stdlib.h>  //header file
-#include <string.h>  //header file
+#include <stdio.h>  
+#include <stdlib.h> 
+#include <string.h> 
 
 #define SIZE 30
 
-// this function will convert the string to lowercase
-
-void toLowerCase(char plain[], int ps)
-{
-    int i;
-    for (i = 0; i < ps; i++) {
+void toLowerCase(char plain[], int ps) {
+    for (int i = 0; i < ps; i++) {
         if (plain[i] > 64 && plain[i] < 91)
             plain[i] += 32;
     }
@@ -20,8 +14,8 @@ void toLowerCase(char plain[], int ps)
 // this function will remove all the spaces
 int removeSpaces(char* plain, int ps)
 {
-    int i, count = 0;
-    for (i = 0; i < ps; i++)
+    int count = 0;
+    for (int i = 0; i < ps; i++)
         if (plain[i] != ' ')
             plain[count++] = plain[i];
     plain[count] = '\0';
@@ -33,8 +27,7 @@ void generateKeyTable(char key[], int ks, char keyT[5][5])
 {
     int i, j, k, flag = 0, *dicty;
 
-    // character hashmap of 26 character that will
-    // store count of the alphabet.
+    // character hashmap of 26 character that will store count of the alphabet.
     dicty = (int*)calloc(26, sizeof(int));
     for (i = 0; i < ks; i++) {
         if (key[i] != 'j')
@@ -70,8 +63,7 @@ void generateKeyTable(char key[], int ks, char keyT[5][5])
     }
 }
 
-// this function will search for the characters of a digraph
-// in the key and return position of key
+// this function will search for the characters of a digraph in the key and return position of key
 void search(char keyT[5][5], char a, char b, int arr[])
 {
     int i, j;
@@ -159,20 +151,25 @@ void encryptByPlayfairCipher(char str[], char key[])
 // main code
 int main()
 {
-    char str[SIZE], key[SIZE];
+    char PT[SIZE];
+    char key[SIZE];
 
     // key text
-    strcpy(key, "Algorithm");
+    printf("Enter the key : ");
+    fgets(key, SIZE, stdin);
+    key[strcspn(key, "\n")] = '\0';
     printf("Key text: %s\n", key);
 
     // Plaintext
-    strcpy(str, "Programming");
-    printf("Plain text: %s\n", str);
+    printf("Enter the plaintext : ");
+    fgets(PT, SIZE, stdin);    
+    PT[strcspn(PT, "\n")] = '\0';
+    printf("Plain text: %s\n", PT);
 
     // encryption using the "Playfair Cipher" algorithmn
-    encryptByPlayfairCipher(str, key);
+    encryptByPlayfairCipher(PT, key);
 
-    printf("Cipher text: %s\n", str);
+    printf("Cipher text: %s\n", PT);
 
     return 0;
 }
