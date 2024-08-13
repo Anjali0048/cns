@@ -4,172 +4,93 @@
 
 #define SIZE 30
 
-void toLowerCase(char plain[], int ps) {
-    for (int i = 0; i < ps; i++) {
-        if (plain[i] > 64 && plain[i] < 91)
-            plain[i] += 32;
+void toLowerCase(char str[]) {
+    for (int i = 0; str[i]; i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            str[i] += 'a' - 'A';
+        }
     }
 }
 
-// this function will remove all the spaces
-int removeSpaces(char* plain, int ps)
-{
-    int count = 0;
-    for (int i = 0; i < ps; i++)
-        if (plain[i] != ' ')
-            plain[count++] = plain[i];
-    plain[count] = '\0';
-    return count;
-}
+// Generate the 5x5 key table for Playfair Cipher
+void generateKeyTable(char key[], char keyTable[5][5]) {
+    int dict[26] = {0}, k = 0;
 
-// this function will generate the 5x5 grid square
-void generateKeyTable(char key[], int ks, char keyT[5][5])
-{
-    int i, j, k, flag = 0, *dicty;
-
-    // character hashmap of 26 character that will store count of the alphabet.
-    dicty = (int*)calloc(26, sizeof(int));
-    for (i = 0; i < ks; i++) {
-        if (key[i] != 'j')
-            dicty[key[i] - 97] = 2;
+    // Fill the keyTable with key characters
+    for (int i = 0; key[i]; i++) {
+        if (key[i] != 'j' && dict[key[i] - 'a'] == 0) {
+            keyTable[k / 5][k % 5] = key[i];
+            dict[key[i] - 'a'] = 1;
+            k++;
+        }
     }
 
-    dicty['j' - 97] = 1;
+    // Fill remaining table with other alphabet characters
+    for (int i = 0; i < 26; i++) {
+        if (i != ('j' - 'a') && dict[i] == 0) {
+            keyTable[k / 5][k % 5] = 'a' + i;
+            k++;
+        }
+    }
+}
 
-    i = 0;
-    j = 0;
+// Encrypt the text using Playfair Cipher
+void encryptText(char text[], char keyTable[5][5]) {
+    for (int i = 0; text[i] && text[i + 1]; i += 2) {
+        int a[2], b[2];
 
-    for (k = 0; k < ks; k++) {
-        if (dicty[key[k] - 97] == 2) {
-            dicty[key[k] - 97] -= 1;
-            keyT[i][j] = key[k];
-            j++;
-            if (j == 5) {
-                i++;
-                j = 0;
+        // Find positions of the characters in the keyTable
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 5; col++) {
+                if (keyTable[row][col] == text[i]) {
+                    a[0] = row;
+                    a[1] = col;
+                }
+                if (keyTable[row][col] == text[i + 1]) {
+                    b[0] = row;
+                    b[1] = col;
+                }
             }
         }
-    }
 
-    for (k = 0; k < 26; k++) {
-        if (dicty[k] == 0) {
-            keyT[i][j] = (char)(k + 97);
-            j++;
-            if (j == 5) {
-                i++;
-                j = 0;
-            }
+        // Encrypt according to Playfair rules
+        if (a[0] == b[0]) {  // Same row
+            text[i] = keyTable[a[0]][(a[1] + 1) % 5];
+            text[i + 1] = keyTable[b[0]][(b[1] + 1) % 5];
+        } else if (a[1] == b[1]) {  // Same column
+            text[i] = keyTable[(a[0] + 1) % 5][a[1]];
+            text[i + 1] = keyTable[(b[0] + 1) % 5][b[1]];
+        } else {  // Rectangle
+            text[i] = keyTable[a[0]][b[1]];
+            text[i + 1] = keyTable[b[0]][a[1]];
         }
     }
 }
 
-// this function will search for the characters of a digraph in the key and return position of key
-void search(char keyT[5][5], char a, char b, int arr[])
-{
-    int i, j;
+int main() {
+    char key[SIZE], text[SIZE], keyTable[5][5];
 
-    if (a == 'j')
-        a = 'i';
-    else if (b == 'j')
-        b = 'i';
+    // Input the key
+    printf("Enter the key: ");
+    scanf("%s", key);
+    toLowerCase(key);
 
-    for (i = 0; i < 5; i++) {
+    // Input the text to encrypt
+    printf("Enter the plaintext: ");
+    scanf("%s", text);
+    toLowerCase(text);
 
-        for (j = 0; j < 5; j++) {
-
-            if (keyT[i][j] == a) {
-                arr[0] = i;
-                arr[1] = j;
-            }
-            else if (keyT[i][j] == b) {
-                arr[2] = i;
-                arr[3] = j;
-            }
-        }
+    // Ensure the text length is even by adding 'x' if necessary
+    if (strlen(text) % 2 != 0) {
+        strcat(text, "x");
     }
-}
 
-// this function will find the modulus with 5
-int mod5(int a) { return (a % 5); }
+    // Generate the key table and encrypt the text
+    generateKeyTable(key, keyTable);
+    encryptText(text, keyTable);
 
-// this function will make the plain text length even
-int prepare(char str[], int ptrs)
-{
-    if (ptrs % 2 != 0) {
-        str[ptrs++] = 'z';
-        str[ptrs] = '\0';
-    }
-    return ptrs;
-}
-
-// encryption will done using this function
-void encrypt(char str[], char keyT[5][5], int ps)
-{
-    int i, a[4];
-
-    for (i = 0; i < ps; i += 2) {
-
-        search(keyT, str[i], str[i + 1], a);
-
-        if (a[0] == a[2]) {
-            str[i] = keyT[a[0]][mod5(a[1] + 1)];
-            str[i + 1] = keyT[a[0]][mod5(a[3] + 1)];
-        }
-        else if (a[1] == a[3]) {
-            str[i] = keyT[mod5(a[0] + 1)][a[1]];
-            str[i + 1] = keyT[mod5(a[2] + 1)][a[1]];
-        }
-        else {
-            str[i] = keyT[a[0]][a[3]];
-            str[i + 1] = keyT[a[2]][a[1]];
-        }
-    }
-}
-
-// this function will encrypt cipher text using Playfair Cipher algorithm
-void encryptByPlayfairCipher(char str[], char key[])
-{
-    char ps, ks, keyT[5][5];
-
-    
-    ks = strlen(key);
-    ks = removeSpaces(key, ks);
-    toLowerCase(key, ks);
-
-    
-    ps = strlen(str);
-    toLowerCase(str, ps);
-    ps = removeSpaces(str, ps);
-
-    ps = prepare(str, ps);
-
-    generateKeyTable(key, ks, keyT);
-
-    encrypt(str, keyT, ps);
-}
-
-// main code
-int main()
-{
-    char PT[SIZE];
-    char key[SIZE];
-
-    // key text
-    printf("Enter the key : ");
-    fgets(key, SIZE, stdin);
-    key[strcspn(key, "\n")] = '\0';
-    printf("Key text: %s\n", key);
-
-    // Plaintext
-    printf("Enter the plaintext : ");
-    fgets(PT, SIZE, stdin);    
-    PT[strcspn(PT, "\n")] = '\0';
-    printf("Plain text: %s\n", PT);
-
-    // encryption using the "Playfair Cipher" algorithmn
-    encryptByPlayfairCipher(PT, key);
-
-    printf("Cipher text: %s\n", PT);
+    // Output the encrypted text
+    printf("Cipher text: %s\n", text);
 
     return 0;
 }

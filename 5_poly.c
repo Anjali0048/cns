@@ -1,48 +1,53 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
-void encrypt(char plaintext[], char key[]) {
+void encrypt(char plaintext[], char key[], char ciphertext[]) {
     int keyLen = strlen(key);
     int plaintextLen = strlen(plaintext);
-    char ciphertext[plaintextLen + 1];
-    
-    for (int i = 0; i < plaintextLen; i++) {
-        // Shift the plaintext character by the corresponding key character
-        ciphertext[i] = ((plaintext[i] + key[i % keyLen] - 2 * 'a') % 26) + 'a';
+
+    for (int i = 0, j = 0; i < plaintextLen; i++, j++) {
+        if (j >= keyLen) {
+            j = 0;
+        }
+        int shift = toupper(key[j]) - 'A';
+        ciphertext[i] = ((toupper(plaintext[i]) - 'A' + shift) % 26) + 'A';
     }
-    ciphertext[plaintextLen] = '\0'; 
-    printf("Encrypted message: %s\n", ciphertext);
+    ciphertext[plaintextLen] = '\0';  // Null-terminate the ciphertext
 }
 
-// Function to perform decryption using Polyalphabetic Cipher
-void decrypt(char ciphertext[], char key[]) {
+void decrypt(char ciphertext[], char key[], char plaintext[]) {
     int keyLen = strlen(key);
     int ciphertextLen = strlen(ciphertext);
-    char plaintext[ciphertextLen + 1];
-    
-    for (int i = 0; i < ciphertextLen; i++) {
-        // Shift the ciphertext character back by the corresponding key character
-        plaintext[i] = ((ciphertext[i] - key[i % keyLen] + 26) % 26) + 'a';
+
+    for (int i = 0, j = 0; i < ciphertextLen; i++, j++) {
+        if (j >= keyLen) {
+            j = 0;
+        }
+        int shift = toupper(key[j]) - 'A';
+        plaintext[i] = ((toupper(ciphertext[i]) - 'A' - shift + 26) % 26) + 'A';
     }
-    plaintext[ciphertextLen] = '\0'; 
-    printf("Decrypted message: %s\n", plaintext);
+    plaintext[ciphertextLen] = '\0';  // Null-terminate the plaintext
 }
 
 int main() {
-    char key[100], plaintext[100], ciphertext[100];
+    char plaintext[128], key[16], ciphertext[128];
 
-    printf("Enter the key: ");
+    // Encryption Process
+    printf("Enter the plaintext (up to 128 characters): ");
+    scanf(" %s", plaintext); 
+    
+    printf("Enter the key (up to 16 characters): ");
     scanf("%s", key);
+    // scanf(" %[^\n]", key);
 
-    printf("Enter the plaintext: ");
-    scanf("%s", plaintext);
-    
-    encrypt(plaintext, key);
-    
-    printf("Enter the ciphertext to decrypt: ");
-    scanf("%s", ciphertext);
+    encrypt(plaintext, key, ciphertext);
+    printf("Cipher Text: %s\n", ciphertext);
 
-    decrypt(ciphertext, key);
-    
+    // Decryption Process
+    decrypt(ciphertext, key, plaintext);
+    printf("Deciphered Text: %s\n", plaintext);
+
     return 0;
 }

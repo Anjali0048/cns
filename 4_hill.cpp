@@ -28,16 +28,14 @@ void HillCipher(string plainText, string key) {
     getKeyMatrix(key, keyMatrix);
  
     int plainTextVector[3][1];
- 
     for (int i = 0; i < 3; i++)
         plainTextVector[i][0] = (plainText[i]) % 65;
  
+
     int cipherMatrix[3][1];
- 
     encrypt(cipherMatrix, keyMatrix, plainTextVector);
  
     string CipherText;
- 
     for (int i = 0; i < 3; i++)
         CipherText += cipherMatrix[i][0] + 65;
  

@@ -3,7 +3,7 @@
 #include <math.h>
 
 #define P 23 // Prime number
-#define G 5  // Primitive root modulo
+#define G 9  // Primitive root modulo
 
 int mod_exp(int base, int exp, int modulus)
 {
